@@ -2,9 +2,9 @@ import math
 
 
 class Node(object):
-    def __init__(self, x, y):
-        self.x = x
+    def __init__(self, y, x):
         self.y = y
+        self.x = x
         self.traversable = True
         self.g_cost = 999999999999999  # temp
         self.h_cost = None
@@ -15,12 +15,12 @@ class Node(object):
 
 
 class AStar(object):
-    def __init__(self, width=10, length=10, start=(0, 0), end=(9, 9)):
-        self.BOARD = [[Node(x, y) for y in range(width)] for x in range(length)]
+    def __init__(self, rows=10, cols=10, start=(0, 0), end=(9, 9)):
+        self.BOARD = [[Node(y, x) for x in range(rows)] for y in range(cols)]
         self.open_nodes = []
         self.closed_nodes = []
-        self.start_node = self.BOARD[start[0]][start[1]]
-        self.end_node = self.BOARD[end[0]][end[1]]
+        self.start_node = self.BOARD[start[1]][start[0]]
+        self.end_node = self.BOARD[end[1]][end[0]]
 
         self.start_node.h_cost = self.calc_cost(self.start_node)
         self.open_nodes.append(self.start_node)
@@ -45,9 +45,10 @@ class AStar(object):
 
         if current == self.end_node:
             self.path_found = True
-        for neighbour in [self.BOARD[current.x + x][current.y + y]
-                          for x in reversed(range(-1, 2)) if 0 <= current.x + x < len(self.BOARD[0])
-                          for y in reversed(range(-1, 2)) if 0 <= current.y + y < len(self.BOARD)]:
+
+        for neighbour in [self.BOARD[current.y + y][current.x + x] for x in reversed(range(-1, 2)) for y in reversed(range(-1, 2))
+                          if 0 <= current.x + x < len(self.BOARD[0]) and 0 <= current.y + y < len(self.BOARD)]:
+
             if not neighbour.traversable or neighbour in self.closed_nodes:
                 continue
 
@@ -64,6 +65,7 @@ class AStar(object):
         if self.path_found:
             if not current:
                 current = self.end_node
+                path.append(self.end_node)
             while current.parent:
                 path.append(current.parent)
                 current = current.parent
@@ -82,6 +84,12 @@ class AStar(object):
                     print("?", end="")
             print()
 
+    def print_nodes(self):
+        for row in self.BOARD:
+            for node in row:
+                print(node, end="")
+            print()
+
     def add_obstacles(self, x, y):
         self.BOARD[x][y].traversable = False
 
@@ -89,7 +97,7 @@ class AStar(object):
 if __name__ == "__main__":
     a = AStar(4, 4, start=(0, 0), end=(3, 3))
     a.add_obstacles(1,1)
+    a.add_obstacles(2,2)
     while not a.path_found:
         a.algorithm_loop()
     print(a.backtrack_path())
-    a.print_board()
