@@ -6,7 +6,7 @@ class Node(object):
         self.y = y
         self.x = x
         self.traversable = True
-        self.g_cost = 999999999999999  # temp
+        self.g_cost = 0  # temp
         self.h_cost = None
         self.parent = None
 
@@ -52,8 +52,8 @@ class AStar(object):
             if not neighbour.traversable or neighbour in self.closed_nodes:
                 continue
 
-            if neighbour not in self.open_nodes or self.calc_cost(neighbour, current) < neighbour.g_cost:
-                neighbour.g_cost = self.calc_cost(neighbour, current)
+            if neighbour not in self.open_nodes or self.calc_cost(neighbour, current) + current.g_cost < neighbour.g_cost:
+                neighbour.g_cost = self.calc_cost(neighbour, current) + current.g_cost
                 if not neighbour.h_cost:
                     neighbour.h_cost = self.calc_cost(neighbour)
                 neighbour.parent = current
@@ -95,9 +95,13 @@ class AStar(object):
 
 
 if __name__ == "__main__":
-    a = AStar(4, 4, start=(0, 0), end=(3, 3))
+    a = AStar(5, 5, start=(0, 0), end=(4, 4))
     a.add_obstacles(1,1)
     a.add_obstacles(2,2)
+    a.add_obstacles(2,3)
+    a.add_obstacles(2,4)
     while not a.path_found:
         a.algorithm_loop()
+        a.print_board()
+        print("")
     print(a.backtrack_path())

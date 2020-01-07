@@ -70,7 +70,7 @@ if __name__ == "__main__":
     pygame.display.set_caption("AStart Algorithm")
     clock = pygame.time.Clock()
 
-    a_star = AStar(50, 50, start=(10, 0), end=(14, 30))
+    a_star = AStar(50, 50, start=(0, 0), end=(49, 49))
     board = Board(screen, a_star)
 
     running = True
