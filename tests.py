@@ -33,7 +33,7 @@ class TestStringMethods(unittest.TestCase):
             a.algorithm_loop()
         self.assertEqual(a.board_to_2d_list(), [[2, 0, 0],
                                                 [0, 4, 0],
-                                                [0, 0, 4],
+                                                [0, 4, 0],
                                                 [0, 0, 3]])
 
     def test_4x3_with_obstacles(self):
@@ -55,8 +55,8 @@ class TestStringMethods(unittest.TestCase):
         while not a.path_found:
             a.algorithm_loop()
         self.assertEqual(a.board_to_2d_list(), [[2, 0, 0, 0],
-                                                [0, 4, 0, 0],
-                                                [0, 0, 4, 3]])
+                                                [0, 4, 4, 0],
+                                                [0, 0, 0, 3]])
 
     def test_3x4_with_obstacles(self):
         a = AStarAlgorithm(array_board=[[2, 0, 0, 0],
