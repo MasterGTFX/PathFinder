@@ -11,7 +11,7 @@ class Node(object):
         self.y = y
         self.x = x
         self.traversable = True
-        self.g_cost = 999999999999999  # temp
+        self.g_cost = 0  # temp
         self.h_cost = None
         self.parent = None
 
@@ -90,8 +90,8 @@ class AStarAlgorithm(object):
             if not neighbour.traversable or neighbour in self.closed_nodes:
                 continue
 
-            if neighbour not in self.open_nodes or self.calc_cost(neighbour, current) < neighbour.g_cost:
-                neighbour.g_cost = self.calc_cost(neighbour, current)
+            if neighbour not in self.open_nodes or self.calc_cost(neighbour, current) + current.g_cost < neighbour.g_cost:
+                neighbour.g_cost = self.calc_cost(neighbour, current) + current.g_cost
                 if not neighbour.h_cost:
                     neighbour.h_cost = self.calc_cost(neighbour)
                 neighbour.parent = current
