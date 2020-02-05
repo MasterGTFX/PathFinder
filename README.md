@@ -1,6 +1,9 @@
 # pathFinder
 A* path finding algorithm visualisation, with start, end and obstacles in the way!
 
+# Example
+![shop example](example.png?raw=true "Example")
+
 ## Technologies
 - Python 3
 
