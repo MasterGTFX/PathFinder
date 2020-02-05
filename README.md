@@ -6,8 +6,8 @@ A* path finding algorithm visualisation, with start, end and obstacles in the wa
 
 ## Getting Started
 Run 'python gui.py'. Make sure that u have required modules installed (math, Pygame). You can choose board size and start,end positions in gui code.   
-Add obstacles with right click.  
-Start program with space.  
+Add obstacle -> mouse click.  
+Start program -> space.  
 
 ## TODO
 * Settings window for board size, start,end position
