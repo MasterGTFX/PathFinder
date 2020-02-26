@@ -1,5 +1,6 @@
 import pygame
-from a_star_algorithm import AStarAlgorithm
+import algorithms
+from algorithms import AStar
 
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
@@ -70,7 +71,7 @@ if __name__ == "__main__":
     pygame.display.set_caption("AStart Algorithm")
     clock = pygame.time.Clock()
 
-    a_star = AStarAlgorithm(50, 50, start=(0, 0), end=(49, 49))
+    a_star = AStar(50, 50, start=(0, 0), end=(49, 49))
     board = Board(screen, a_star)
 
     running = True
@@ -92,4 +93,4 @@ if __name__ == "__main__":
             if a_star.path_found:
                 board.print_path()
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(200)
