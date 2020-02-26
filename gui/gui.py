@@ -1,6 +1,5 @@
 import pygame
-import tkinter as tk
-from a_star_algorithm import AStar
+from a_star_algorithm import AStarAlgorithm
 
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
@@ -8,8 +7,8 @@ GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
-WIDTH = 500
-HEIGHT = 500
+WIDTH = 900
+HEIGHT = 900
 MARGIN = 5
 
 
@@ -17,7 +16,6 @@ class Board(object):
     def __init__(self, screen, a_star):
         self.size = ((WIDTH - len(a_star.BOARD[0]) * MARGIN) // len(a_star.BOARD[0]),
                      (HEIGHT - len(a_star.BOARD) * MARGIN) // len(a_star.BOARD))
-        print(self.size)
         self.a_star = a_star
         self.screen = screen
         for row in self.a_star.BOARD:
@@ -49,11 +47,11 @@ class Board(object):
                                            self.size[1]])
 
     def print_obstacle(self, pos):
-        x, y = (pos[0] * len(self.a_star.BOARD[0]) // WIDTH,
-                pos[1] * len(self.a_star.BOARD) // HEIGHT)
+        x, y = (pos[1] * len(self.a_star.BOARD[0]) // WIDTH,
+                pos[0] * len(self.a_star.BOARD) // HEIGHT)
         self.a_star.add_obstacles(x, y)
-        pygame.draw.rect(screen, BLACK, [(MARGIN + self.size[0]) * x + MARGIN,
-                                         (MARGIN + self.size[1]) * y + MARGIN,
+        pygame.draw.rect(screen, BLACK, [(MARGIN + self.size[0]) * y + MARGIN,
+                                         (MARGIN + self.size[1]) * x + MARGIN,
                                          self.size[0],
                                          self.size[1]])
 
@@ -66,29 +64,18 @@ class Board(object):
                                             self.size[1]])
 
 
-class Menu(tk.Frame):
-    def __init__(self, *args, **kwargs):
-        tk.Frame.__init__(self, *args, **kwargs)
-        self.nazwa_label = tk.Label(self, text="Lista przedmiotow::")
-        self.nazwa_label.pack(fill=tk.X, side=tk.LEFT)
-
-
 if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
     pygame.display.set_caption("AStart Algorithm")
     clock = pygame.time.Clock()
 
-    a_star = AStar(15, 15, start=(0, 0), end=(14, 14))
+    a_star = AStarAlgorithm(50, 50, start=(0, 0), end=(49, 49))
     board = Board(screen, a_star)
 
     running = True
     start_algorithm = False
-    
-    root = tk.Tk()
-    menu = Menu(root)
-    menu.pack(side="top", fill="both", expand=True)
-    root.mainloop()
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
