@@ -2,9 +2,9 @@ import math
 
 
 class Node(object):
-    def __init__(self, y, x):
-        self.y = y
+    def __init__(self, x, y):
         self.x = x
+        self.y = y
         self.traversable = True
         self.g_cost = 0  # temp
         self.h_cost = None
@@ -16,7 +16,7 @@ class Node(object):
 
 class AStar(object):
     def __init__(self, rows=10, cols=10, start=(0, 0), end=(9, 9)):
-        self.BOARD = [[Node(y, x) for x in range(rows)] for y in range(cols)]
+        self.BOARD = [[Node(x, y) for x in range(rows)] for y in range(cols)]
         self.open_nodes = []
         self.closed_nodes = []
         self.start_node = self.BOARD[start[1]][start[0]]
@@ -46,13 +46,15 @@ class AStar(object):
         if current == self.end_node:
             self.path_found = True
 
-        for neighbour in [self.BOARD[current.y + y][current.x + x] for x in reversed(range(-1, 2)) for y in reversed(range(-1, 2))
+        for neighbour in [self.BOARD[current.y + y][current.x + x] for x in reversed(range(-1, 2)) for y in
+                          reversed(range(-1, 2))
                           if 0 <= current.x + x < len(self.BOARD[0]) and 0 <= current.y + y < len(self.BOARD)]:
 
             if not neighbour.traversable or neighbour in self.closed_nodes:
                 continue
 
-            if neighbour not in self.open_nodes or self.calc_cost(neighbour, current) + current.g_cost < neighbour.g_cost:
+            if neighbour not in self.open_nodes or self.calc_cost(neighbour,
+                                                                  current) + current.g_cost < neighbour.g_cost:
                 neighbour.g_cost = self.calc_cost(neighbour, current) + current.g_cost
                 if not neighbour.h_cost:
                     neighbour.h_cost = self.calc_cost(neighbour)
@@ -91,15 +93,15 @@ class AStar(object):
             print()
 
     def add_obstacles(self, x, y):
-        self.BOARD[x][y].traversable = False
+        self.BOARD[y][x].traversable = False
 
 
 if __name__ == "__main__":
     a = AStar(5, 5, start=(0, 0), end=(4, 4))
-    a.add_obstacles(1,1)
-    a.add_obstacles(2,2)
-    a.add_obstacles(2,3)
-    a.add_obstacles(2,4)
+    a.add_obstacles(1, 1)
+    a.add_obstacles(2, 2)
+    a.add_obstacles(2, 3)
+    a.add_obstacles(2, 4)
     while not a.path_found:
         a.algorithm_loop()
         a.print_board()
