@@ -1,94 +1,196 @@
 import pygame
 from algorithms import AStar
 
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-GREEN = (0, 255, 0)
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
+pygame.init()
 
-WIDTH = 900
-HEIGHT = 900
-MARGIN = 5
+DARK_RED = (139, 0, 0)
+MEDIUM_BLUE = (0, 0, 205)
+FOREST_GREEN = (34, 139, 34)
+BLACK = (0, 0, 0)
+GRAY = (105, 105, 105)
+GOLD = (255, 215, 0)
+ORANGE = (255, 165, 0)
+WHITE = (255, 255, 255)
+WHITE_SMOKE = (235, 235, 235)
+
+WIDTH = 600
+HEIGHT = 666
+BOARD_HEIGHT = int(0.95 * HEIGHT)
+BOARD_MARGIN = HEIGHT - BOARD_HEIGHT
+NODE_MARGIN = 2
+
+FONT = pygame.font.SysFont("comicsansms", int(min([WIDTH, HEIGHT]) / 50))
 
 
 class BoardObject(object):
 
     def __init__(self, screen, alg=AStar()):
         self.alg = alg
-        self.board = alg.board_array
-        self.board_size = (len(self.board[0]), len(self.board))
-        self.size = ((WIDTH - self.board_size[0] * MARGIN) // self.board_size[0],
-                     (HEIGHT - self.board_size[1] * MARGIN) // self.board_size[1])
+        self.board_size = (len(self.alg.board_array[0]), len(self.alg.board_array))
+        self.size = ((WIDTH - self.board_size[0] * NODE_MARGIN) // self.board_size[0],
+                     (BOARD_HEIGHT - self.board_size[1] * NODE_MARGIN) // self.board_size[1])
         self.start_node = (0, 0)
         self.end_node = (board_size[0] - 1, board_size[1] - 1)
         self.screen = screen
 
-        for x in range(len(self.board)):
-            for y in range(len(self.board[0])):
-                self.draw_rect(x, y, WHITE)
-        self.draw_rect(self.start_node[0], self.start_node[1], BLUE)
-        self.draw_rect(self.end_node[0], self.end_node[1], BLUE)
+        self.update()
 
-    def draw_rect(self, x, y, color):
-        pygame.draw.rect(screen, color, [(MARGIN + self.size[0]) * x + MARGIN,
-                                         (MARGIN + self.size[1]) * y + MARGIN,
-                                         self.size[0],
-                                         self.size[1]])
+    def draw_node(self, x, y, color):
+        if color == WHITE:
+            if x % 2 == 0 and y % 2 == 0:
+                color = WHITE_SMOKE
+
+        node = pygame.draw.rect(screen, color, [(NODE_MARGIN + self.size[0]) * x + NODE_MARGIN,
+                                                (NODE_MARGIN + self.size[1]) * y + NODE_MARGIN + BOARD_MARGIN,
+                                                self.size[0],
+                                                self.size[1]])
+        if color in [FOREST_GREEN, DARK_RED, MEDIUM_BLUE]:
+            node_text = f"{self.alg.BOARD[y][x].g_cost}, {self.alg.BOARD[y][x].h_cost}"
+            text_surface = FONT.render(node_text, True, BLACK)
+            screen.blit(text_surface,
+                        (node.centerx - text_surface.get_width() // 2, node.centery - text_surface.get_height() // 2))
+        elif color is GOLD:
+            text_surface = FONT.render("START", True, BLACK)
+            screen.blit(text_surface,
+                        (node.centerx - text_surface.get_width() // 2, node.centery - text_surface.get_height() // 2))
+        elif color is ORANGE:
+            text_surface = FONT.render("END", True, BLACK)
+            screen.blit(text_surface,
+                        (node.centerx - text_surface.get_width() // 2, node.centery - text_surface.get_height() // 2))
 
     def update(self):
-        for x in range(len(self.board)):
-            for y in range(len(self.board)):
-                if self.board[y][x] == 0:
+        for y in range(len(self.alg.board_array)):
+            for x in range(len(self.alg.board_array[0])):
+                if self.alg.board_array[y][x] == 0:
                     color = WHITE
-                if self.board[y][x] == 1:
-                    color = BLACK
-                if self.board[y][x] in [2, 3, 4]:
-                    color = BLUE
-                if self.board[y][x] == 5:
-                    color = GREEN
-                if self.board[y][x] == 6:
-                    color = RED
-                self.draw_rect(x, y, color)
+                if self.alg.board_array[y][x] == 1:
+                    color = GRAY
+                if self.alg.board_array[y][x] == 2:
+                    color = GOLD
+                if self.alg.board_array[y][x] == 3:
+                    color = ORANGE
+                if self.alg.board_array[y][x] == 4:
+                    color = MEDIUM_BLUE
+                if self.alg.board_array[y][x] == 5:
+                    color = FOREST_GREEN
+                if self.alg.board_array[y][x] == 6:
+                    color = DARK_RED
+                self.draw_node(x, y, color)
 
-    def add_obstacle(self, pos):
-        y, x = (pos[1] * len(self.board[0]) // WIDTH,
-                pos[0] * len(self.board) // HEIGHT)
-        self.alg.add_obstacles(x, y)
-        pygame.draw.rect(screen, BLACK, [(MARGIN + self.size[0]) * x + MARGIN,
-                                         (MARGIN + self.size[1]) * y + MARGIN,
-                                         self.size[0],
-                                         self.size[1]])
+    def _convert_mouse_pos_to_cords(self, pos):
+        x, y = (pos[0] * len(self.alg.board_array[0]) // WIDTH,
+                (pos[1] - BOARD_MARGIN) * len(self.alg.board_array) // BOARD_HEIGHT)
         return x, y
 
+    def add_obstacle(self, pos):
+        x, y = self._convert_mouse_pos_to_cords(pos)
+        if self.alg.BOARD[y][x] not in [self.alg.start_node, self.alg.end_node]:
+            self.alg.add_obstacle(x, y)
+            self.update()
 
-if __name__ == "__main__":
-    pygame.init()
-    screen = pygame.display.set_mode([WIDTH, HEIGHT])
-    pygame.display.set_caption("AStart Algorithm")
-    clock = pygame.time.Clock()
+    def remove_obstacle(self, pos):
+        x, y = self._convert_mouse_pos_to_cords(pos)
+        if self.alg.BOARD[y][x] not in [self.alg.start_node, self.alg.end_node]:
+            self.alg.remove_obstacle(x, y)
+            self.draw_node(x, y, WHITE)
 
-    board_size = (20, 20)
-    Algorithm = AStar
-    alg = Algorithm(board_size[0], board_size[1], start=(0, 0), end=(board_size[0] - 1, board_size[1] - 1))
-    board_object = BoardObject(screen, alg)
+    def move_start_or_end_node(self, from_pos, to_pos):
+        old_x, old_y = self._convert_mouse_pos_to_cords(from_pos)
+        old_node = self.alg.BOARD[old_y][old_x]
+        new_x, new_y = self._convert_mouse_pos_to_cords(to_pos)
+        self.alg.move_node(new_x, new_y, old_node)
 
+
+class BoardScreen:
     running = True
     start_algorithm = False
 
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    start_algorithm = True
-            if pygame.mouse.get_pressed()[0]:
-                pos = pygame.mouse.get_pos()
-                board_object.add_obstacle(pos)
-        if start_algorithm and not alg.path_found:
-            board_object.alg.algorithm_loop()
-            board_object.update()
+    def __init__(self, board_object):
+        self.board_object = board_object
+        self.clock = pygame.time.Clock()
+        self.moving_pos = [None, None]
+        self.moving_node = False
 
-        pygame.display.flip()
-        clock.tick(60)
+    def __call__(self, *args, **kwargs):
+        while self.running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        self.start_algorithm = True
+                elif event.type == pygame.VIDEORESIZE:
+                    # TBC
+                    global NODE_MARGIN, WIDTH, HEIGHT, FONT, FONT_MARGIN, BOARD_HEIGHT, BOARD_MARGIN
+                    WIDTH = event.w
+                    HEIGHT = event.h
+                    BOARD_HEIGHT = int(0.95 * HEIGHT)
+                    BOARD_MARGIN = HEIGHT - BOARD_HEIGHT
+                    FONT = pygame.font.SysFont("comicsansms", int(min([WIDTH, HEIGHT]) / 50))
+
+                    self.board_object.size = (
+                        (WIDTH - self.board_object.board_size[0] * NODE_MARGIN) // self.board_object.board_size[0],
+                        (BOARD_HEIGHT - self.board_object.board_size[1] * NODE_MARGIN) // self.board_object.board_size[
+                            1])
+                    self.board_object.screen = pygame.display.set_mode(event.dict['size'], pygame.RESIZABLE)
+
+                    self.board_object.screen.fill(BLACK)
+                    self.board_object.update()
+
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_click = pygame.mouse.get_pressed()
+            if mouse_pos[1] >= BOARD_MARGIN:
+                if mouse_click[0]:
+                    self.board_object.add_obstacle(mouse_pos)
+                if mouse_click[2]:
+                    self.board_object.remove_obstacle(mouse_pos)
+                if mouse_click[1]:
+                    if not self.moving_node:
+                        self.moving_pos[0] = mouse_pos
+                        self.moving_node = True
+                        self.board_object.screen.fill(DARK_RED)
+                        self.board_object.update()
+                elif self.moving_node:
+                    #TBC    !!!!!
+                    if self.board_object.alg.path_found:
+                        self.board_object.alg = Algorithm(board=self.board_object.alg.board_array)
+                        self.moving_pos[1] = mouse_pos
+                        self.board_object.move_start_or_end_node(self.moving_pos[0], self.moving_pos[1])
+                        self.moving_pos = [None, None]
+                        self.moving_node = False
+                        while not self.board_object.alg.path_found:
+                            self.board_object.alg.algorithm_loop()
+                        self.board_object.screen.fill(BLACK)
+                        self.board_object.update()
+
+                    else:
+                        self.moving_pos[1] = mouse_pos
+                        self.board_object.move_start_or_end_node(self.moving_pos[0], self.moving_pos[1])
+                        self.moving_pos = [None, None]
+                        self.moving_node = False
+                        self.board_object.screen.fill(BLACK)
+                        self.board_object.update()
+
+            if self.start_algorithm and not self.board_object.alg.path_found:
+                self.board_object.alg.algorithm_loop()
+                self.board_object.update()
+
+            pygame.display.flip()
+            self.clock.tick(60)
+
+    def _reset(self):
+        pass
+
+
+if __name__ == "__main__":
+    screen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.RESIZABLE)
+    pygame.display.set_caption("AStart Algorithm")
+    Algorithm = AStar
+
+    board_size = (10, 10)
+    alg = Algorithm(board_size[0], board_size[1], start=(0, 0), end=(board_size[0] - 1, board_size[1] - 1))
+
+    board_object = BoardObject(screen, alg)
+    board_screen = BoardScreen(board_object)
+
+    board_screen()

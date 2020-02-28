@@ -45,6 +45,8 @@ class AStar(object):
                         self.start_node = self.BOARD[y][x]
                     elif board[y][x] == 3:
                         self.end_node = self.BOARD[y][x]
+                    elif board[y][x] in [4, 5, 6]:
+                        board[y][x] = 0
             if not self.start_node or not self.end_node:
                 raise AttributeError("No start/end node specified!")
         else:
@@ -155,13 +157,61 @@ class AStar(object):
         self.board_array[self.end_node.y][self.end_node.x] = 3
         return path
 
-    def add_obstacles(self, x, y):
+    def add_obstacle(self, x, y):
         """
         Add obstacle in given (x,y) position
         :return: None
         """
         self.BOARD[y][x].traversable = False
         self.board_array[y][x] = 1
+
+    def remove_obstacle(self, x, y):
+        """
+        Add obstacle in given (x,y) position
+        :return: None
+        """
+        self.BOARD[y][x].traversable = True
+        self.board_array[y][x] = 0
+
+    def move_start_node(self, x, y):
+        """
+        Move start node to a given (x,y) position
+        :return: None
+        """
+        self.board_array[self.start_node.y][self.start_node.x] = 0
+        self.board_array[y][x] = 2
+
+        self.open_nodes.remove(self.start_node)
+        self.open_nodes.append(self.BOARD[y][x])
+
+        self.start_node = self.BOARD[y][x]
+        self.start_node.h_cost = self._calc_cost(self.start_node)
+
+    def move_end_node(self, x, y):
+        """
+        Move end node to a given (x,y) position
+        :return: None
+        """
+        self.board_array[self.end_node.y][self.end_node.x] = 0
+        self.board_array[y][x] = 3
+
+        self.end_node = self.BOARD[y][x]
+
+    def move_node(self, x, y, node):
+        """
+        Move node(start/end only) to a given (x.y) position
+        :param x: x-coordinate
+        :param y: y-coordinate
+        :param node: Node to be moved (start/end)
+        :return: None
+        """
+        if node is self.start_node:
+            self.move_start_node(x, y)
+        elif node is self.end_node:
+            self.move_end_node(x, y)
+        else:
+            print("WARNING: can move only start/end.\n"
+                  "TIP: Use add/remove obstacles to modify board")
 
 
 if __name__ == "__main__":
