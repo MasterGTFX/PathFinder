@@ -20,6 +20,7 @@ BOARD_MARGIN = HEIGHT - BOARD_HEIGHT
 NODE_MARGIN = 2
 
 FONT = pygame.font.SysFont("comicsansms", int(min([WIDTH, HEIGHT]) / 50))
+NODES_TEXT = True
 
 
 class BoardObject(object):
@@ -44,19 +45,25 @@ class BoardObject(object):
                                                 (NODE_MARGIN + self.size[1]) * y + NODE_MARGIN + BOARD_MARGIN,
                                                 self.size[0],
                                                 self.size[1]])
-        if color in [FOREST_GREEN, DARK_RED, MEDIUM_BLUE]:
-            node_text = f"{self.alg.BOARD[y][x].g_cost}, {self.alg.BOARD[y][x].h_cost}"
-            text_surface = FONT.render(node_text, True, BLACK)
-            screen.blit(text_surface,
-                        (node.centerx - text_surface.get_width() // 2, node.centery - text_surface.get_height() // 2))
-        elif color is GOLD:
-            text_surface = FONT.render("START", True, BLACK)
-            screen.blit(text_surface,
-                        (node.centerx - text_surface.get_width() // 2, node.centery - text_surface.get_height() // 2))
-        elif color is ORANGE:
-            text_surface = FONT.render("END", True, BLACK)
-            screen.blit(text_surface,
-                        (node.centerx - text_surface.get_width() // 2, node.centery - text_surface.get_height() // 2))
+        if NODES_TEXT:
+            if color in [FOREST_GREEN, DARK_RED, MEDIUM_BLUE]:
+                # node_text = f"{self.alg.BOARD[y][x].g_cost}, {self.alg.BOARD[y][x].h_cost}"
+                # node_text = repr(self.alg.BOARD[y][x])
+                node_text = ""
+                text_surface = FONT.render(node_text, True, BLACK)
+                screen.blit(text_surface,
+                            (node.centerx - text_surface.get_width() // 2,
+                             node.centery - text_surface.get_height() // 2))
+            elif color is GOLD:
+                text_surface = FONT.render("START", True, BLACK)
+                screen.blit(text_surface,
+                            (node.centerx - text_surface.get_width() // 2,
+                             node.centery - text_surface.get_height() // 2))
+            elif color is ORANGE:
+                text_surface = FONT.render("END", True, BLACK)
+                screen.blit(text_surface,
+                            (node.centerx - text_surface.get_width() // 2,
+                             node.centery - text_surface.get_height() // 2))
 
     def update(self):
         for y in range(len(self.alg.board_array)):
@@ -185,9 +192,9 @@ class BoardScreen:
 if __name__ == "__main__":
     screen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.RESIZABLE)
     pygame.display.set_caption("AStart Algorithm")
-    Algorithm = AStar
+    Algorithm = Dijkstra
 
-    board_size = (10, 10)
+    board_size = (19, 19)
     alg = Algorithm(board_size[0], board_size[1], start=(0, 0), end=(board_size[0] - 1, board_size[1] - 1))
 
     board_object = BoardObject(screen, alg)

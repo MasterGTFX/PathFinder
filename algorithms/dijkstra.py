@@ -36,6 +36,8 @@ class Dijkstra(BaseAlgorithm):
             self.path_found = True
             self.path = self._backtrack_path()
             self.alg_end = True
+            self.board_array[current.y][current.x] = 3
+            return None
 
         if not current.neighbours:
             self._set_node_neighbours(current)
@@ -45,6 +47,27 @@ class Dijkstra(BaseAlgorithm):
                 neighbour.d = current.d + self._calc_cost(current, neighbour)
                 neighbour.parent = current
                 self.board_array[current.y][current.x] = 5
+
+    def move_start_node(self, x, y):
+        """
+        Move start node to a given (x,y) position
+        :return: None
+        """
+        self.board_array[self.start_node.y][self.start_node.x] = 0
+        self.board_array[y][x] = 2
+        self.start_node.d = maxsize
+        self.start_node = self.BOARD[y][x]
+        self.start_node.d = 0
+
+    def move_end_node(self, x, y):
+        """
+        Move start node to a given (x,y) position
+        :return: None
+        """
+        self.board_array[self.end_node.y][self.end_node.x] = 0
+        self.board_array[y][x] = 3
+
+        self.end_node = self.BOARD[y][x]
 
 
 if __name__ == "__main__":
