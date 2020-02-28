@@ -1,5 +1,5 @@
 import pygame
-from algorithms import AStar
+from algorithms import AStar, Dijkstra
 
 pygame.init()
 
@@ -151,7 +151,7 @@ class BoardScreen:
                         self.board_object.screen.fill(DARK_RED)
                         self.board_object.update()
                 elif self.moving_node:
-                    #TBC    !!!!!
+                    # TBC    !!!!!
                     if self.board_object.alg.path_found:
                         self.board_object.alg = Algorithm(board=self.board_object.alg.board_array)
                         self.moving_pos[1] = mouse_pos
