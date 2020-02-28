@@ -12,10 +12,11 @@ GOLD = (255, 215, 0)
 ORANGE = (255, 165, 0)
 WHITE = (255, 255, 255)
 WHITE_SMOKE = (235, 235, 235)
+COLORS = {0: WHITE, 1: GRAY, 2: GOLD, 3: ORANGE, 4: MEDIUM_BLUE, 5: FOREST_GREEN, 6: DARK_RED}
 
 WIDTH = 600
 HEIGHT = 666
-BOARD_HEIGHT = int(0.95 * HEIGHT)
+BOARD_HEIGHT = int(0.90 * HEIGHT)
 BOARD_MARGIN = HEIGHT - BOARD_HEIGHT
 NODE_MARGIN = 2
 
@@ -45,6 +46,7 @@ class BoardObject(object):
                                                 (NODE_MARGIN + self.size[1]) * y + NODE_MARGIN + BOARD_MARGIN,
                                                 self.size[0],
                                                 self.size[1]])
+
         if NODES_TEXT:
             if color in [FOREST_GREEN, DARK_RED, MEDIUM_BLUE]:
                 # node_text = f"{self.alg.BOARD[y][x].g_cost}, {self.alg.BOARD[y][x].h_cost}"
@@ -68,21 +70,13 @@ class BoardObject(object):
     def update(self):
         for y in range(len(self.alg.board_array)):
             for x in range(len(self.alg.board_array[0])):
-                if self.alg.board_array[y][x] == 0:
-                    color = WHITE
-                if self.alg.board_array[y][x] == 1:
-                    color = GRAY
-                if self.alg.board_array[y][x] == 2:
-                    color = GOLD
-                if self.alg.board_array[y][x] == 3:
-                    color = ORANGE
-                if self.alg.board_array[y][x] == 4:
-                    color = MEDIUM_BLUE
-                if self.alg.board_array[y][x] == 5:
-                    color = FOREST_GREEN
-                if self.alg.board_array[y][x] == 6:
-                    color = DARK_RED
-                self.draw_node(x, y, color)
+                if self.alg.BOARD[y][x] not in [self.alg.start_node, self.alg.end_node]:
+                    color = COLORS[self.alg.board_array[y][x]]
+                    self.draw_node(x, y, color)
+                elif self.alg.BOARD[y][x] == self.alg.start_node:
+                    self.draw_node(x, y, GOLD)
+                else:
+                    self.draw_node(x, y, ORANGE)
 
     def _convert_mouse_pos_to_cords(self, pos):
         x, y = (pos[0] * len(self.alg.board_array[0]) // WIDTH,
@@ -126,6 +120,8 @@ class BoardScreen:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         self.start_algorithm = True
+                        if self.board_object.alg.path_found:
+                            self.board_object.alg = Algorithm(board=self.board_object.alg.board_array)
                 elif event.type == pygame.VIDEORESIZE:
                     # TBC
                     global NODE_MARGIN, WIDTH, HEIGHT, FONT, FONT_MARGIN, BOARD_HEIGHT, BOARD_MARGIN
@@ -144,6 +140,7 @@ class BoardScreen:
                     self.board_object.screen.fill(BLACK)
                     self.board_object.update()
 
+
             mouse_pos = pygame.mouse.get_pos()
             mouse_click = pygame.mouse.get_pressed()
             if mouse_pos[1] >= BOARD_MARGIN:
@@ -155,28 +152,17 @@ class BoardScreen:
                     if not self.moving_node:
                         self.moving_pos[0] = mouse_pos
                         self.moving_node = True
-                        self.board_object.screen.fill(DARK_RED)
+                        self.board_object.screen.fill(GOLD)
                         self.board_object.update()
                 elif self.moving_node:
-                    # TBC    !!!!!
+                    self.moving_pos[1] = mouse_pos
                     if self.board_object.alg.path_found:
                         self.board_object.alg = Algorithm(board=self.board_object.alg.board_array)
-                        self.moving_pos[1] = mouse_pos
-                        self.board_object.move_start_or_end_node(self.moving_pos[0], self.moving_pos[1])
-                        self.moving_pos = [None, None]
-                        self.moving_node = False
-                        while not self.board_object.alg.path_found:
-                            self.board_object.alg.algorithm_loop()
-                        self.board_object.screen.fill(BLACK)
-                        self.board_object.update()
-
-                    else:
-                        self.moving_pos[1] = mouse_pos
-                        self.board_object.move_start_or_end_node(self.moving_pos[0], self.moving_pos[1])
-                        self.moving_pos = [None, None]
-                        self.moving_node = False
-                        self.board_object.screen.fill(BLACK)
-                        self.board_object.update()
+                    self.board_object.move_start_or_end_node(self.moving_pos[0], self.moving_pos[1])
+                    self.moving_pos = [None, None]
+                    self.moving_node = False
+                    self.board_object.screen.fill(BLACK)
+                    self.board_object.update()
 
             if self.start_algorithm and not self.board_object.alg.path_found:
                 self.board_object.alg.algorithm_loop()
@@ -192,9 +178,10 @@ class BoardScreen:
 if __name__ == "__main__":
     screen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.RESIZABLE)
     pygame.display.set_caption("AStart Algorithm")
+    # Algorithm = AStar
     Algorithm = Dijkstra
 
-    board_size = (19, 19)
+    board_size = (10, 10)
     alg = Algorithm(board_size[0], board_size[1], start=(0, 0), end=(board_size[0] - 1, board_size[1] - 1))
 
     board_object = BoardObject(screen, alg)
