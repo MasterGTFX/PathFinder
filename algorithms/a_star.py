@@ -7,6 +7,11 @@ class ANode(BaseNode):
         self.g_cost = 0  # temp
         self.h_cost = None
 
+    def __repr__(self):
+        return "ANode({},{})".format(self.x, self.y)
+
+    def __str__(self):
+        return "{}, {}".format(self.g_cost, self.h_cost)
 
 class AStar(BaseAlgorithm):
 

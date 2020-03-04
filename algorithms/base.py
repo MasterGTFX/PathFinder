@@ -15,7 +15,7 @@ class BaseNode(object):
         self.neighbours = None
 
     def __repr__(self):
-        return "Node({},{})".format(self.x, self.y)
+        return "BaseNode({},{})".format(self.x, self.y)
 
 
 class BaseAlgorithm(object):

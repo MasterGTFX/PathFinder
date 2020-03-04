@@ -9,6 +9,12 @@ class DijkstraNode(BaseNode):
         super().__init__(x, y)
         self.d = maxsize
 
+    def __repr__(self):
+        return "DijkstraNode({},{})".format(self.x, self.y)
+
+    def __str__(self):
+        return "{}".format(self.d)
+
 
 class Dijkstra(BaseAlgorithm):
 
